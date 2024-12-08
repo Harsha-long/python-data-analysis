@@ -1,0 +1,66 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv('fcc-forum-pageviews.csv', parse_dates=['date'], index_col='date')
+
+# Clean the data: filter out top and bottom 2.5%
+lower_bound = df['page_views'].quantile(0.025)
+upper_bound = df['page_views'].quantile(0.975)
+df_clean = df[(df['page_views'] >= lower_bound) & (df['page_views'] <= upper_bound)]
+
+# Function to draw the line plot
+def draw_line_plot():
+    df_line = df_clean.copy()
+    plt.figure(figsize=(12, 6))
+    plt.plot(df_line.index, df_line['page_views'], color='blue', linewidth=1)
+    plt.title('Daily freeCodeCamp Forum Page Views 5/2016-12/2019')
+    plt.xlabel('Date')
+    plt.ylabel('Page Views')
+    plt.tight_layout()
+    plt.savefig('line_plot.png')
+    plt.show()
+
+# Function to draw the bar plot
+def draw_bar_plot():
+    df_bar = df_clean.copy()
+    df_bar = df_bar.resample('M').mean()
+    plt.figure(figsize=(12, 6))
+    df_bar['page_views'].plot(kind='bar', color='orange', width=1)
+    plt.title('Average Monthly Page Views by Year')
+    plt.xlabel('Date')
+    plt.ylabel('Average Page Views')
+    plt.legend(['Monthly Average'], title='Months')
+    plt.tight_layout()
+    plt.savefig('bar_plot.png')
+    plt.show()
+
+# Function to draw the box plot
+def draw_box_plot():
+    df_box = df_clean.copy()
+    df_box['year'] = df_box.index.year
+    df_box['month'] = df_box.index.month
+    
+    plt.figure(figsize=(12, 6))
+    sns.boxplot(x='year', y='page_views', data=df_box)
+    plt.title('Year-wise Box Plot (Trend)')
+    plt.xlabel('Year')
+    plt.ylabel('Page Views')
+    plt.tight_layout()
+    plt.savefig('year_box_plot.png')
+    plt.show()
+    
+    plt.figure(figsize=(12, 6))
+    sns.boxplot(x='month', y='page_views', data=df_box)
+    plt.title('Month-wise Box Plot (Seasonality)')
+    plt.xlabel('Month')
+    plt.ylabel('Page Views')
+    plt.tight_layout()
+    plt.savefig('month_box_plot.png')
+    plt.show()
+
+# Calling the functions
+draw_line_plot()
+draw_bar_plot()
+draw_box_plot()
